@@ -69,6 +69,36 @@ static class Lexer
         return CharacterClass.OTHER_CHAR;
     }
 
+    static TokenType getReserved(string identifier)
+    {
+        if (identifier == "start")
+            return TokenType.RESERVED_START;
+        else if (identifier == "finish")
+            return TokenType.RESERVED_FINISH;
+        else if (identifier == "whole")
+            return TokenType.RESERVED_WHOLE;
+        else if (identifier == "dec")
+            return TokenType.RESERVED_DEC;
+        else if (identifier == "if")
+            return TokenType.RESERVED_IF;
+        else if (identifier == "elsif")
+            return TokenType.RESERVED_ELSIF;
+        else if (identifier == "else")
+            return TokenType.RESERVED_ELSE;
+        else if (identifier == "end")
+            return TokenType.RESERVED_END;
+        else if (identifier == "while")
+            return TokenType.RESERVED_WHILE;
+        else if (identifier == "gets")
+            return TokenType.RESERVED_GETS;
+        else if (identifier == "puts")
+            return TokenType.RESERVED_PUTS;
+
+        return TokenType.IDENTIFIER;
+
+
+    }
+
     public static Token getNextToken(string code)
     {
         string lexeme = "";
@@ -93,8 +123,16 @@ static class Lexer
 
         // Rollback
         code = nextChar + code;
-        if (lexeme.Length > 1 && FinalStateToTokenType(state) != TokenType.STRING)
+        TokenType tokenType = FinalStateToTokenType(state);
+        if (lexeme.Length > 1 && tokenType != TokenType.STRING)
             lexeme = lexeme.Remove(lexeme.Length - 1);
-        return new Token(lexeme, FinalStateToTokenType(state));
+        if (tokenType == TokenType.IDENTIFIER)
+        {
+            TokenType reserved = getReserved(lexeme);
+            if (reserved != TokenType.IDENTIFIER)
+                return new Token(lexeme, reserved);
+        }
+
+        return new Token(lexeme, tokenType);
     }
 }
