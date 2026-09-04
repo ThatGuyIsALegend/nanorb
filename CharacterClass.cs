@@ -16,5 +16,9 @@ enum CharacterClass
     CLOSING_PARENTHESIS,
     COMA,
     PERIOD,
-    POUND_SIGN
+    POUND_SIGN,
+    ASCII,
+    OTHER_CHAR,
+    TAB,
+    SPACE
 }

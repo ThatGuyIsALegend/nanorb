@@ -20,6 +20,11 @@ static class Lexer
         return state >= State.S100 && state <= State.S118;
     }
 
+    internal static TokenType FinalStateToTokenType(State state)
+    {
+        return (TokenType)((int)state - (int)State.S100);
+    }
+
     internal static CharacterClass classifyCharacter(char a)
     {
         if (Char.IsLetter(a))
@@ -28,7 +33,7 @@ static class Lexer
             return CharacterClass.DIGIT;
         else if (a == '\n')
             return CharacterClass.NEWLINE;
-        else if (a == '\n')
+        else if (a == '"')
             return CharacterClass.APOSTROPHE;
         else if (a == '=')
             return CharacterClass.EQUAL;
@@ -56,7 +61,41 @@ static class Lexer
             return CharacterClass.PERIOD;
         else if (a == '#')
             return CharacterClass.POUND_SIGN;
+        else if (a == '\t')
+            return CharacterClass.TAB;
+        else if (a == ' ')
+            return CharacterClass.SPACE;
 
-        return CharacterClass.CHAR;
+        return CharacterClass.OTHER_CHAR;
+    }
+
+    public static Token getNextToken(string code)
+    {
+        string lexeme = "";
+        State state = State.S0;
+        State old_state = State.S0;
+        char nextChar = code[0];
+
+        while (!isFinalState(state))
+        {
+            nextChar = code.Length > 0 ? code[0] : '\0';                        // gets next char
+            code = code.Length > 0 ? code.Substring(1) : code; // removes the char from code
+
+            if (nextChar == '\0')
+            {
+                // Something here?
+            }
+
+            lexeme += nextChar;
+            old_state = state;
+            state = transition_matrix[(int)state][(int)classifyCharacter(nextChar)];
+        }
+
+        // Rollback
+        code = nextChar + code;
+        if (lexeme.Length > 1 && FinalStateToTokenType(state) != TokenType.STRING)
+            lexeme = lexeme.Remove(lexeme.Length - 1);
+
+        return new Token(lexeme, FinalStateToTokenType(state));
     }
 }

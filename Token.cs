@@ -1,12 +1,17 @@
 
 class Token
 {
-    string lexem;
-    string type;
+    public string lexeme;
+    public TokenType type;
 
-    Token(string _lexem, string _type)
+    public Token(string _lexeme, TokenType _type)
     {
-        this.lexem = _lexem;
+        this.lexeme = _lexeme;
         this.type = _type;
+    }
+
+    override public string ToString()
+    {
+        return "Lexeme: " + lexeme + " Type: " + type;
     }
 }
