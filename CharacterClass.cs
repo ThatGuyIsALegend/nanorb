@@ -1,0 +1,20 @@
+enum CharacterClass
+{
+    CHAR,
+    NEWLINE,
+    DIGIT,
+    APOSTROPHE,
+    EQUAL,
+    EXCLAMATION,
+    LESS_THAN,
+    GREATER_THAN,
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
+    OPENING_PARENTHESIS,
+    CLOSING_PARENTHESIS,
+    COMA,
+    PERIOD,
+    POUND_SIGN
+}
