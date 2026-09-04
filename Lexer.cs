@@ -5,8 +5,8 @@ static class Lexer
         [State.S1, State.S101, State.S2, State.S5, State.S6, State.S7, State.S8, State.S9, State.S112, State.S113, State.S114, State.S115, State.S116, State.S117, State.S118, State.S500, State.S10, State.S500, State.S500, State.S0, State.S0],
         [State.S1, State.S100, State.S1, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100],
         [State.S102, State.S102, State.S2, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S3, State.S3, State.S102, State.S102, State.S102, State.S102, State.S102],
-        [State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501],
-        [State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103],
+        [State.S501, State.S501, State.S4, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501],
+        [State.S103, State.S103, State.S4, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103],
         [State.S5, State.S502, State.S5, State.S104, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5],
         [State.S105, State.S105, State.S105, State.S105, State.S106, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105, State.S105],
         [State.S503, State.S503, State.S503, State.S503, State.S107, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503],
@@ -95,7 +95,6 @@ static class Lexer
         code = nextChar + code;
         if (lexeme.Length > 1 && FinalStateToTokenType(state) != TokenType.STRING)
             lexeme = lexeme.Remove(lexeme.Length - 1);
-
         return new Token(lexeme, FinalStateToTokenType(state));
     }
 }

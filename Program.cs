@@ -5,7 +5,9 @@ class Program
         string code = """
               start
                 while(5 < 4)
-                  puts("10")
+                  puts("*+-!=")
+                  puts(10.67)
+                  a = 6 + 7
                 end
               finish
               """;
