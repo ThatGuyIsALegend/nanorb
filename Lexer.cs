@@ -122,7 +122,9 @@ static class Lexer
         }
 
         // Rollback
+        int length = lexeme.Length;
         code = nextChar + code;
+        lexeme = lexeme.Trim(' ', '\t');
         TokenType tokenType = FinalStateToTokenType(state);
         if (lexeme.Length > 1 && tokenType != TokenType.STRING)
             lexeme = lexeme.Remove(lexeme.Length - 1);
@@ -130,9 +132,9 @@ static class Lexer
         {
             TokenType reserved = getReserved(lexeme);
             if (reserved != TokenType.IDENTIFIER)
-                return new Token(lexeme, reserved);
+                return new Token(lexeme, reserved, length);
         }
 
-        return new Token(lexeme, tokenType);
+        return new Token(lexeme, tokenType, length);
     }
 }

@@ -16,7 +16,7 @@ class Program
         {
             Token token = Lexer.getNextToken(code);
             Console.WriteLine(token);
-            code = code.Substring(token.lexeme.Length);
+            code = code.Substring(token.length);
         }
     }
 }
