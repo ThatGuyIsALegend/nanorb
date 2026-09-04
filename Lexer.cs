@@ -103,31 +103,34 @@ static class Lexer
     {
         string lexeme = "";
         State state = State.S0;
-        State old_state = State.S0;
         char nextChar = code[0];
 
         while (!isFinalState(state))
         {
-            nextChar = code.Length > 0 ? code[0] : '\0';                        // gets next char
+            nextChar = code.Length > 0 ? code[0] : '\0';       // gets next char
             code = code.Length > 0 ? code.Substring(1) : code; // removes the char from code
 
-            if (nextChar == '\0')
-            {
-                // Something here?
-            }
+            if (nextChar != '\0')
+                lexeme += nextChar;
 
-            lexeme += nextChar;
-            old_state = state;
             state = transition_matrix[(int)state][(int)classifyCharacter(nextChar)];
         }
 
-        // Rollback
         int length = lexeme.Length;
-        code = nextChar + code;
-        lexeme = lexeme.Trim(' ', '\t');
         TokenType tokenType = FinalStateToTokenType(state);
-        if (lexeme.Length > 1 && tokenType != TokenType.STRING)
-            lexeme = lexeme.Remove(lexeme.Length - 1);
+
+        // Only rollback if it's not end of file
+        if (nextChar != '\0')
+        {
+            code = nextChar + code;
+            if (lexeme.Length > 1 && tokenType != TokenType.STRING)
+                lexeme = lexeme.Remove(lexeme.Length - 1);
+        }
+
+        // Trim trailing whitespace
+        lexeme = lexeme.Trim(' ', '\t');
+
+        // Check for reserved keywords
         if (tokenType == TokenType.IDENTIFIER)
         {
             TokenType reserved = getReserved(lexeme);
