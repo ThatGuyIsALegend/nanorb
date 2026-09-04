@@ -33,6 +33,12 @@ CharacterClass classifyCharacter(char a)
         return CharacterClass.OPENING_PARENTHESIS;
     else if (a == ')')
         return CharacterClass.CLOSING_PARENTHESIS;
+    else if (a == ',')
+        return CharacterClass.COMA;
+    else if (a == '.')
+        return CharacterClass.PERIOD;
+    else if (a == '#')
+        return CharacterClass.POUND_SIGN;
 
     return CharacterClass.CHAR;
 }
@@ -104,5 +110,31 @@ enum CharacterClass
     STAR,
     SLASH,
     OPENING_PARENTHESIS,
-    CLOSING_PARENTHESIS
+    CLOSING_PARENTHESIS,
+    COMA,
+    PERIOD,
+    POUND_SIGN
+}
+
+enum TokenType
+{
+    IDENTIFIER,
+    NEWLINE,
+    INT,
+    REAL,
+    STRING,
+    ASIGNATION,
+    EQUALITY,
+    INEQUALITY,
+    LESS_THAN,
+    LESS_OR_EQUAL_THAN,
+    GREATER_THAN,
+    GREATER_OR_EQUAL_THAN,
+    SUM,
+    SUBSTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    OPENING_PARENTHESIS,
+    CLOSING_PARENTHESIS,
+    COMA,
 }
