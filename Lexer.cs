@@ -4,7 +4,7 @@ static class Lexer
     [
         [State.S1, State.S101, State.S2, State.S5, State.S6, State.S7, State.S8, State.S9, State.S112, State.S113, State.S114, State.S115, State.S116, State.S117, State.S118, State.S500, State.S10, State.S500, State.S500, State.S0, State.S0],
         [State.S1, State.S100, State.S1, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100, State.S100],
-        [State.S102, State.S102, State.S2, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S3, State.S3, State.S102, State.S102, State.S102, State.S102, State.S102],
+        [State.S102, State.S102, State.S2, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S102, State.S3, State.S102, State.S102, State.S102, State.S102, State.S102],
         [State.S501, State.S501, State.S4, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501, State.S501],
         [State.S103, State.S103, State.S4, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103, State.S103],
         [State.S5, State.S502, State.S5, State.S104, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5, State.S5],
@@ -104,6 +104,7 @@ static class Lexer
         string lexeme = "";
         State state = State.S0;
         char nextChar = code[0];
+        int length = 0;
 
         while (!isFinalState(state))
         {
@@ -111,20 +112,39 @@ static class Lexer
             code = code.Length > 0 ? code.Substring(1) : code; // removes the char from code
 
             if (nextChar != '\0')
+                length++;
+
+            State nextState = transition_matrix[(int)state][(int)classifyCharacter(nextChar)];
+
+            if (nextChar != '\0' && state != State.S10 && nextState != State.S10)
                 lexeme += nextChar;
 
-            state = transition_matrix[(int)state][(int)classifyCharacter(nextChar)];
+            if (state == State.S10 && nextChar == '\0')
+                return new Token("", TokenType.NEWLINE, length);
+
+            state = nextState;
         }
 
-        int length = lexeme.Length;
         TokenType tokenType = FinalStateToTokenType(state);
 
+        // S101, S104, S106, S107, S109, S111 and S112-S118 are reached by
+        // consuming a character that belongs to the token itself; in every
+        // other final state that character is lookahead for the next token
+        bool endsOnTokenChar =
+            state == State.S101 ||
+            state == State.S104 ||
+            state == State.S106 ||
+            state == State.S107 ||
+            state == State.S109 ||
+            state == State.S111 ||
+            (state >= State.S112 && state <= State.S118);
+
         // Only rollback if it's not end of file
-        if (nextChar != '\0')
+        if (!endsOnTokenChar && nextChar != '\0')
         {
-            code = nextChar + code;
-            if (lexeme.Length > 1 && tokenType != TokenType.STRING)
+            if (lexeme.Length > 1)
                 lexeme = lexeme.Remove(lexeme.Length - 1);
+            length--;
         }
 
         // Trim trailing whitespace

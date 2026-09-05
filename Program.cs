@@ -4,10 +4,29 @@ class Program
     {
         string code = """
               start
-                while(5 < 4)
-                  puts("*+-!=")
-                  puts(10.67)
-                  a = 6 + 7
+                whole edad1 = 0
+                dec precio = 3.14
+                puts("Ingresa tu edad") # Esto es un comentario
+                gets(edad1)
+                contador = edad1 + 25
+                if(contador == 100)
+                  puts("Hola", contador)
+                elsif(contador != 100)
+                  puts(precio, contador)
+                else
+                  x = 0
+                end
+                while(contador < 1000)
+                  contador = contador + 1 * 2 - 10.5 / 0.25
+                end
+                if(contador <= 25)
+                  x = contador
+                end
+                if(contador > 0)
+                  nombre = "Mundo"
+                end
+                if(contador >= 25)
+                  puts(nombre)
                 end
               finish
               """;
