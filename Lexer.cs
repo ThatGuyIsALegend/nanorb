@@ -15,6 +15,8 @@ static class Lexer
         [State.S10, State.S0, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10],
     ];
 
+    public static int line = 1;
+
     internal static bool isFinalState(State state)
     {
         return state >= State.S100 && state <= State.S118;
@@ -114,6 +116,9 @@ static class Lexer
             if (nextChar != '\0')
                 length++;
 
+            if (nextChar == '\n')
+                line++;
+
             State nextState = transition_matrix[(int)state][(int)classifyCharacter(nextChar)];
 
             if (nextChar != '\0' && state != State.S10 && nextState != State.S10)
@@ -145,6 +150,8 @@ static class Lexer
             if (lexeme.Length > 1)
                 lexeme = lexeme.Remove(lexeme.Length - 1);
             length--;
+            if (nextChar == '\n')
+                line--;
         }
 
         // Trim trailing whitespace

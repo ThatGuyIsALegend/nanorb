@@ -31,11 +31,23 @@ class Program
               finish
               """;
 
+        List<(string lexeme, TokenType type, int line)> symbolTable = [];
+
         while (code.Length > 0)
         {
             Token token = Lexer.getNextToken(code);
-            Console.WriteLine(token);
+            if (token.type != TokenType.NEWLINE)
+                symbolTable.Add((token.lexeme, token.type, Lexer.line));
             code = code.Substring(token.length);
+        }
+
+        Console.WriteLine("| # | Lexema | Tipo de token | Linea |");
+        Console.WriteLine("|---|--------|---------------|-------|");
+        int row = 1;
+        foreach ((string lexeme, TokenType type, int line) in symbolTable)
+        {
+            Console.WriteLine($"| {row} | {lexeme} | {type} | {line} |");
+            row++;
         }
     }
 }
