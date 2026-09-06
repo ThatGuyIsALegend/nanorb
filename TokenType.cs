@@ -30,4 +30,5 @@ enum TokenType
     RESERVED_WHILE,
     RESERVED_GETS,
     RESERVED_PUTS,
+    ERROR, 
 }

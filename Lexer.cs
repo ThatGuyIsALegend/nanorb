@@ -19,11 +19,25 @@ static class Lexer
 
     internal static bool isFinalState(State state)
     {
-        return state >= State.S100 && state <= State.S118;
+        // CAMBIO: ahora también se consideran finales los estados de error
+        // (S500, S501, S502, S503). Antes solo se reconocían S100-S118,
+        // lo que provocaba IndexOutOfRangeException al llegar a un error léxico.
+        return (state >= State.S100 && state <= State.S118)
+            || state == State.S500
+            || state == State.S501
+            || state == State.S502
+            || state == State.S503;
     }
 
     internal static TokenType FinalStateToTokenType(State state)
     {
+        // CAMBIO: se agrega manejo explícito de los estados de error,
+        // ya que su valor numérico no corresponde al offset usado
+        // para los tokens normales (State.S100 en adelante).
+        if (state == State.S500 || state == State.S501 ||
+            state == State.S502 || state == State.S503)
+            return TokenType.ERROR;
+
         return (TokenType)((int)state - (int)State.S100);
     }
 
@@ -97,8 +111,6 @@ static class Lexer
             return TokenType.RESERVED_PUTS;
 
         return TokenType.IDENTIFIER;
-
-
     }
 
     public static Token getNextToken(string code)
@@ -132,9 +144,10 @@ static class Lexer
 
         TokenType tokenType = FinalStateToTokenType(state);
 
-        // S101, S104, S106, S107, S109, S111 and S112-S118 are reached by
-        // consuming a character that belongs to the token itself; in every
-        // other final state that character is lookahead for the next token
+        // S101, S104, S106, S107, S109, S111, S112-S118 y los estados de error
+        // (S500-S503) son reachados consumiendo un carácter que pertenece al
+        // token mismo; en cualquier otro estado final, ese carácter es
+        // lookahead del siguiente token
         bool endsOnTokenChar =
             state == State.S101 ||
             state == State.S104 ||
@@ -142,7 +155,15 @@ static class Lexer
             state == State.S107 ||
             state == State.S109 ||
             state == State.S111 ||
-            (state >= State.S112 && state <= State.S118);
+            (state >= State.S112 && state <= State.S118) ||
+            // CAMBIO: se agregan los estados de error a la lista de estados
+            // que consumen el carácter ofensivo como parte del lexema,
+            // evitando que "length" se decremente a 0 y cause bucle infinito
+            // en el ciclo de tokenización de Program.cs
+            state == State.S500 ||
+            state == State.S501 ||
+            state == State.S502 ||
+            state == State.S503;
 
         // Only rollback if it's not end of file
         if (!endsOnTokenChar && nextChar != '\0')

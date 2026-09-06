@@ -28,9 +28,14 @@ class Program
                 if(contador >= 25)
                   puts(nombre)
                 end
+                contador = edad1 @ 25
+                nombre & apellido
+                x1 ; 5
               finish
               """;
-
+              
+               code = code.Replace("\r\n", "\n"); // CAMBIO: normaliza saltos de línea Windows (\r\n) a Unix (\n)
+                                            // para que el \r no se clasifique como carácter inválido (ERROR)
         List<(string lexeme, TokenType type, int line)> symbolTable = [];
 
         while (code.Length > 0)
