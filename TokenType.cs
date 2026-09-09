@@ -31,4 +31,5 @@ enum TokenType
     RESERVED_GETS,
     RESERVED_PUTS,
     ERROR, 
+    EOF,
 }

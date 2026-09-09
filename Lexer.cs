@@ -12,7 +12,7 @@ static class Lexer
         [State.S503, State.S503, State.S503, State.S503, State.S107, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503, State.S503],
         [State.S108, State.S108, State.S108, State.S108, State.S109, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108, State.S108],
         [State.S110, State.S110, State.S110, State.S110, State.S111, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110, State.S110],
-        [State.S10, State.S0, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10],
+        [State.S10, State.S101, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10, State.S10],
     ];
 
     public static int line = 1;
