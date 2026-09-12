@@ -50,9 +50,18 @@ class Program
         }
 
         Console.WriteLine();
-        Console.WriteLine(Parser.Parse(tokens)
-            ? "Analisis sintactico: ACEPTADO"
-            : "Analisis sintactico: RECHAZADO");
+        SyntaxNode? tree = Parser.Parse(tokens);
+        if (tree != null)
+        {
+            Console.WriteLine("Analisis sintactico: ACEPTADO");
+            Console.WriteLine();
+            Console.WriteLine("Arbol de sintaxis:");
+            Console.WriteLine(tree.ToTreeString());
+        }
+        else
+        {
+            Console.WriteLine("Analisis sintactico: RECHAZADO");
+        }
     }
 
     static List<(Token token, int line)> Tokenize(string code)

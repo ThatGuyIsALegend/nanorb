@@ -6,38 +6,45 @@ static class Parser
     static Token Look => tokens[position].token;
     static int Line => tokens[position].line;
 
-    public static bool Parse(List<(Token token, int line)> sourceTokens)
+    public static SyntaxNode? Parse(List<(Token token, int line)> sourceTokens)
     {
         tokens = sourceTokens;
         position = 0;
         try
         {
-            Programa();
-            return true;
+            return Programa();
         }
         catch (SyntaxErrorException error)
         {
             Console.WriteLine(error.Message);
-            return false;
+            return null;
         }
     }
 
-    static void Programa()
+    static SyntaxNode Programa()
     {
-        Expect(TokenType.RESERVED_START);
-        Expect(TokenType.NEWLINE);
-        Lineas();
-        Expect(TokenType.RESERVED_FINISH);
+        SyntaxNode node = new("Programa");
+        node.Add(Expect(TokenType.RESERVED_START));
+        node.Add(Expect(TokenType.NEWLINE));
+        node.Add(Lineas());
+        node.Add(Expect(TokenType.RESERVED_FINISH));
         while (Check(TokenType.NEWLINE))
-            Advance();
+            node.Add(Expect(TokenType.NEWLINE));
         if (Look.type != TokenType.EOF)
             throw Error("fin del archivo");
+        return node;
     }
 
-    static void Lineas()
+    static SyntaxNode Lineas()
     {
+        SyntaxNode node = new("Lineas");
         while (IsPrimerosLinea(Look.type))
-            Linea();
+        {
+            SyntaxNode? linea = Linea();
+            if (linea != null)
+                node.Add(linea);
+        }
+        return node;
     }
 
     static bool IsPrimerosLinea(TokenType type)
@@ -52,178 +59,218 @@ static class Parser
             or TokenType.RESERVED_WHILE;
     }
 
-    static void Linea()
+    static SyntaxNode? Linea()
     {
         if (Check(TokenType.NEWLINE))
         {
             Advance();
-            return;
+            return null;
         }
-        Instruccion();
+        SyntaxNode instruccion = Instruccion();
         Expect(TokenType.NEWLINE);
+        return instruccion;
     }
 
-    static void Instruccion()
+    static SyntaxNode Instruccion()
     {
         switch (Look.type)
         {
             case TokenType.RESERVED_WHOLE or TokenType.RESERVED_DEC:
-                Declaracion();
-                break;
+                return Declaracion();
             case TokenType.IDENTIFIER:
-                Asignacion();
-                break;
+                return Asignacion();
             case TokenType.RESERVED_GETS:
-                Entrada();
-                break;
+                return Entrada();
             case TokenType.RESERVED_PUTS:
-                Salida();
-                break;
+                return Salida();
             case TokenType.RESERVED_IF:
-                Condicional();
-                break;
+                return Condicional();
             case TokenType.RESERVED_WHILE:
-                CicloWhile();
-                break;
+                return CicloWhile();
             default:
                 throw Error("una instruccion");
         }
     }
 
-    static void Declaracion()
+    static SyntaxNode Declaracion()
     {
+        SyntaxNode node = new("Declaracion");
         if (Look.type is TokenType.RESERVED_WHOLE or TokenType.RESERVED_DEC)
-            Advance();
+            node.Add(Leaf(Advance()));
         else
             throw Error("'whole' o 'dec'");
-        Expect(TokenType.IDENTIFIER);
+        node.Add(Expect(TokenType.IDENTIFIER));
+        return node;
     }
 
-    static void Asignacion()
+    static SyntaxNode Asignacion()
     {
-        Expect(TokenType.IDENTIFIER);
-        Expect(TokenType.ASIGNATION);
-        Expresion();
+        SyntaxNode node = new("Asignacion");
+        node.Add(Expect(TokenType.IDENTIFIER));
+        node.Add(Expect(TokenType.ASIGNATION));
+        node.Add(Expresion());
+        return node;
     }
 
-    static void Entrada()
+    static SyntaxNode Entrada()
     {
-        Expect(TokenType.RESERVED_GETS);
-        Expect(TokenType.IDENTIFIER);
+        SyntaxNode node = new("Entrada");
+        node.Add(Expect(TokenType.RESERVED_GETS));
+        node.Add(Expect(TokenType.IDENTIFIER));
+        return node;
     }
 
-    static void Salida()
+    static SyntaxNode Salida()
     {
-        Expect(TokenType.RESERVED_PUTS);
-        ElemSalida();
+        SyntaxNode node = new("Salida");
+        node.Add(Expect(TokenType.RESERVED_PUTS));
+        node.Add(ElemSalida());
         while (Check(TokenType.COMA))
         {
-            Advance();
-            ElemSalida();
+            node.Add(Expect(TokenType.COMA));
+            node.Add(ElemSalida());
         }
+        return node;
     }
 
-    static void ElemSalida()
+    static SyntaxNode ElemSalida()
     {
+        SyntaxNode node = new("ElemSalida");
         if (Check(TokenType.STRING))
-            Advance();
+            node.Add(Expect(TokenType.STRING));
         else
-            Expresion();
+            node.Add(Expresion());
+        return node;
     }
 
-    static void Condicional()
+    static SyntaxNode Condicional()
     {
-        Expect(TokenType.RESERVED_IF);
-        Condicion();
-        Expect(TokenType.NEWLINE);
-        Lineas();
+        SyntaxNode node = new("Condicional");
+        node.Add(Expect(TokenType.RESERVED_IF));
+        node.Add(Condicion());
+        node.Add(Expect(TokenType.NEWLINE));
+        node.Add(Lineas());
         while (Check(TokenType.RESERVED_ELSIF))
         {
-            Advance();
-            Condicion();
-            Expect(TokenType.NEWLINE);
-            Lineas();
+            node.Add(Expect(TokenType.RESERVED_ELSIF));
+            node.Add(Condicion());
+            node.Add(Expect(TokenType.NEWLINE));
+            node.Add(Lineas());
         }
         if (Check(TokenType.RESERVED_ELSE))
         {
-            Advance();
-            Expect(TokenType.NEWLINE);
-            Lineas();
+            node.Add(Expect(TokenType.RESERVED_ELSE));
+            node.Add(Expect(TokenType.NEWLINE));
+            node.Add(Lineas());
         }
-        Expect(TokenType.RESERVED_END);
+        node.Add(Expect(TokenType.RESERVED_END));
+        return node;
     }
 
-    static void CicloWhile()
+    static SyntaxNode CicloWhile()
     {
-        Expect(TokenType.RESERVED_WHILE);
-        Condicion();
-        Expect(TokenType.NEWLINE);
-        Lineas();
-        Expect(TokenType.RESERVED_END);
+        SyntaxNode node = new("CicloWhile");
+        node.Add(Expect(TokenType.RESERVED_WHILE));
+        node.Add(Condicion());
+        node.Add(Expect(TokenType.NEWLINE));
+        node.Add(Lineas());
+        node.Add(Expect(TokenType.RESERVED_END));
+        return node;
     }
 
-    static void Condicion()
+    static SyntaxNode Condicion()
     {
-        Expresion();
+        SyntaxNode node = new("Condicion");
+        node.Add(Expresion());
         if (Look.type is TokenType.LESS_THAN
             or TokenType.LESS_OR_EQUAL_THAN
             or TokenType.GREATER_THAN
             or TokenType.GREATER_OR_EQUAL_THAN
             or TokenType.EQUALITY
             or TokenType.INEQUALITY)
-            Advance();
+            node.Add(Leaf(Advance()));
         else
             throw Error("un operador relacional");
-        Expresion();
+        node.Add(Expresion());
+        return node;
     }
 
-    static void Expresion()
+    static SyntaxNode Expresion()
     {
-        Termino();
+        SyntaxNode left = Termino();
         while (Look.type is TokenType.SUM or TokenType.SUBSTRACTION)
         {
-            Advance();
-            Termino();
+            SyntaxNode node = new("Expresion");
+            node.Add(left);
+            node.Add(Leaf(Advance()));
+            node.Add(Termino());
+            left = node;
         }
+        if (left.label != "Expresion")
+        {
+            SyntaxNode wrapper = new("Expresion");
+            wrapper.Add(left);
+            return wrapper;
+        }
+        return left;
     }
 
-    static void Termino()
+    static SyntaxNode Termino()
     {
-        Factor();
+        SyntaxNode left = Factor();
         while (Look.type is TokenType.MULTIPLICATION or TokenType.DIVISION)
         {
-            Advance();
-            Factor();
+            SyntaxNode node = new("Termino");
+            node.Add(left);
+            node.Add(Leaf(Advance()));
+            node.Add(Factor());
+            left = node;
         }
+        if (left.label != "Termino")
+        {
+            SyntaxNode wrapper = new("Termino");
+            wrapper.Add(left);
+            return wrapper;
+        }
+        return left;
     }
 
-    static void Factor()
+    static SyntaxNode Factor()
     {
+        SyntaxNode node = new("Factor");
         if (Check(TokenType.OPENING_PARENTHESIS))
         {
-            Advance();
-            Expresion();
-            Expect(TokenType.CLOSING_PARENTHESIS);
+            node.Add(Expect(TokenType.OPENING_PARENTHESIS));
+            node.Add(Expresion());
+            node.Add(Expect(TokenType.CLOSING_PARENTHESIS));
         }
         else if (Look.type is TokenType.IDENTIFIER or TokenType.INT or TokenType.REAL)
-            Advance();
+            node.Add(Leaf(Advance()));
         else
             throw Error("id, num_entero, num_real o '('");
+        return node;
+    }
+
+    static SyntaxNode Leaf((Token token, int line) consumed)
+    {
+        return new SyntaxNode(consumed.token.type.ToString(), consumed.token, consumed.line);
     }
 
     static bool Check(TokenType type) => Look.type == type;
 
-    static void Advance()
+    static (Token token, int line) Advance()
     {
+        (Token token, int line) current = tokens[position];
         if (position < tokens.Count - 1)
             position++;
+        return current;
     }
 
-    static void Expect(TokenType type)
+    static SyntaxNode Expect(TokenType type)
     {
         if (Look.type != type)
             throw Error(Describe(type));
-        Advance();
+        return Leaf(Advance());
     }
 
     static SyntaxErrorException Error(string esperado)
